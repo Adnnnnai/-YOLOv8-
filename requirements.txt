@@ -1,0 +1,24 @@
+# 基于YOLOv8的智能农业病害检测系统 - 依赖清单
+# =============================================
+
+# 深度学习
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+
+# 图像处理
+opencv-python>=4.8.0
+Pillow>=9.0.0
+
+# 数据处理
+numpy>=1.24.0
+matplotlib>=3.7.0
+PyYAML>=6.0
+
+# Web服务
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+python-multipart>=0.0.5
+
+# 工具
+tqdm>=4.65.0

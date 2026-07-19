@@ -1,0 +1,7 @@
+# 后端服务依赖
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+python-multipart>=0.0.5
+
+# 与根 requirements.txt 共用
+-r ../requirements.txt
