@@ -20,7 +20,13 @@ class DetectionResponse(BaseModel):
     filename: str = Field(..., description="图片文件名")
     num_detections: int = Field(..., description="检测到的目标数量")
     detections: list[DetectionBox] = Field(default_factory=list, description="检测结果列表")
+    latency_ms: float = Field(default=0, description="推理耗时(毫秒)")
     error: str | None = Field(default=None, description="错误信息(如有)")
+
+
+class AnnotatedResponse(DetectionResponse):
+    """带标注图片的检测响应"""
+    image_base64: str = Field(default="", description="标注后的图片 base64")
 
 
 class HealthResponse(BaseModel):
@@ -28,3 +34,23 @@ class HealthResponse(BaseModel):
     status: str = Field(default="ok")
     model_loaded: bool = True
     num_classes: int = 29
+    model_name: str = Field(default="best.pt")
+    gpu_mem: str = Field(default="0G / 0G")
+    latency_p50: float = Field(default=0)
+    images: dict = Field(default_factory=dict)
+
+
+class ConfigResponse(BaseModel):
+    """配置读取响应"""
+    config: dict
+
+
+class ConfigUpdateRequest(BaseModel):
+    """配置更新请求"""
+    updates: dict
+
+
+class RollbackResponse(BaseModel):
+    """模型回滚响应"""
+    success: bool
+    active_model: str
