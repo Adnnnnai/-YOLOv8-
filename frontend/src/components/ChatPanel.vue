@@ -102,10 +102,7 @@ const panelW = ref(380)
 const MIN_W = 320
 const MAX_W = 700
 
-let dragging = false
-
 function onResizeStart(e) {
-  dragging = true
   const startX = e.clientX
   const startW = panelW.value
 
@@ -113,7 +110,6 @@ function onResizeStart(e) {
     panelW.value = Math.min(MAX_W, Math.max(MIN_W, startW + (startX - ev.clientX)))
   }
   const onUp = () => {
-    dragging = false
     document.removeEventListener('mousemove', onMove)
     document.removeEventListener('mouseup', onUp)
     document.body.style.cursor = ''
