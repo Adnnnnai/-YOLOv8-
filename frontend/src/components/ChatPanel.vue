@@ -15,6 +15,8 @@
       </button>
     </div>
 
+    <ChatExport :messages="messages" :detections="detections" v-if="messages.length" />
+
     <div class="chat-body" ref="bodyRef">
       <div class="chat-context" v-if="detections.length" :class="{ 'chat-context--collapsed': ctxCollapsed }">
         <div class="chat-context-head" @click="ctxCollapsed = !ctxCollapsed">
@@ -87,6 +89,7 @@
 
 <script setup>
 import { ref, watch, nextTick, onBeforeUnmount, onMounted } from 'vue'
+import ChatExport from './ChatExport.vue'
 
 const props = defineProps({
   open: Boolean,
