@@ -7,6 +7,13 @@ FastAPI 数据模型
 from pydantic import BaseModel, Field
 
 
+class ErrorResponse(BaseModel):
+    """统一错误响应"""
+    success: bool = False
+    error: str
+    detail: str | None = None
+
+
 class DetectionBox(BaseModel):
     """单个检测框结果"""
     bbox: list[float] = Field(..., description="边界框 [x1, y1, x2, y2]", example=[100.0, 150.0, 300.0, 400.0])

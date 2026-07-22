@@ -62,9 +62,13 @@
     <div class="det-section" v-if="!batchMode && dets.length">
       <div class="det-section-header">
         <span>检测目标列表</span>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center">
           <button class="btn btn-ghost btn-sm" @click="exportCSV">导出 CSV</button>
           <button class="btn btn-ghost btn-sm" @click="exportPDF">导出 PDF</button>
+          <button class="btn-chat-hero" @click="openChat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8V2z"/><circle cx="12" cy="12" r="3"/></svg>
+            AI 智能诊断
+          </button>
         </div>
       </div>
       <div class="det-row">
@@ -143,6 +147,8 @@
         </div>
       </div>
     </transition>
+
+    <ChatPanel :open="showChat" :detections="dets" :image-base64="chatImageB64" @close="showChat = false" />
   </div>
 </template>
 
@@ -150,6 +156,7 @@
 import { ref, nextTick } from 'vue'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
+import ChatPanel from '../components/ChatPanel.vue'
 
 const src = ref(null)
 const dets = ref([])
@@ -168,6 +175,18 @@ const previewDets = ref([])
 const previewLatency = ref(0)
 const previewCanvasRef = ref(null)
 const previewResultRef = ref(null)
+
+const showChat = ref(false)
+const chatImageB64 = ref('')
+
+function openChat() {
+  chatImageB64.value = ''
+  if (resultCanvasRef.value) {
+    const full = resultCanvasRef.value.toDataURL('image/jpeg', 0.6)
+    chatImageB64.value = full.split(',')[1] || full
+  }
+  showChat.value = true
+}
 
 const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316']
 
@@ -583,6 +602,54 @@ async function exportBatchPDF() {
 }
 .panel-header-right { display: flex; align-items: center; gap: 10px; }
 .panel-hint { font-size: 11px; color: var(--c-txt3); font-weight: 400; }
+.btn-chat-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border: 1px solid rgba(139,92,246,.30);
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, rgba(139,92,246,.14) 0%, rgba(139,92,246,.04) 100%);
+  color: #a78bfa;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--c-sans);
+  cursor: pointer;
+  transition: all .25s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+.btn-chat-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(139,92,246,.06), transparent 60%, rgba(139,92,246,.12));
+  opacity: 0;
+  transition: opacity .3s;
+}
+.btn-chat-hero::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(139,92,246,.20) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .3s;
+  animation: chatBtnGlow 2.4s ease-in-out infinite;
+}
+@keyframes chatBtnGlow {
+  0%, 100% { opacity: 0; }
+  50% { opacity: .6; }
+}
+.btn-chat-hero:hover {
+  border-color: rgba(139,92,246,.55);
+  color: #c4b5fd;
+  box-shadow: 0 0 28px rgba(139,92,246,.18), 0 4px 16px rgba(139,92,246,.08);
+  transform: translateY(-1px);
+}
+.btn-chat-hero:hover::before { opacity: 1; }
+.btn-chat-hero:hover::after { opacity: 1; animation: none; }
+.btn-chat-hero:active { transform: translateY(0); }
 .panel-action {
   border: none; background: transparent; color: var(--c-red);
   font-size: 12px; font-weight: 500; cursor: pointer;

@@ -20,5 +20,8 @@ fastapi>=0.100.0
 uvicorn[standard]>=0.22.0
 python-multipart>=0.0.5
 
+# HTTP 客户端（智能诊断调用千问 API）
+httpx>=0.27.0
+
 # 工具
 tqdm>=4.65.0

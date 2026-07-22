@@ -18,7 +18,7 @@
           <div class="tl-card-top">
             <span class="tl-ver">{{ v.ver }}</span>
             <span class="badge" :class="v.active ? 'badge-green' : 'badge-red'">
-              {{ v.active ? '使用中' : '旧版' }}
+              {{ v.active ? '使用中' : '历史版本' }}
             </span>
           </div>
 
@@ -42,7 +42,7 @@
           <div class="tl-actions">
             <template v-if="!v.active">
               <button class="btn btn-primary btn-sm" v-if="confirmId !== v.id" @click="confirmId = v.id">
-                激活至此版本
+                切换至此版本
               </button>
               <button class="btn btn-danger btn-sm" v-if="confirmId === v.id" @click="roll(v)">
                 确认回滚
@@ -86,17 +86,31 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import api from '../api'
 
 const confirmId = ref(null)
 const overlay  = ref(false)
 const weightName = ref('')
 const overlayError = ref('')
+const currentModel = ref('—')
+
+async function fetchActiveModel() {
+  try {
+    const { data } = await api.get('/health')
+    currentModel.value = data.model_name || ''
+  } catch (e) { /* ignore */ }
+}
+
+onMounted(() => fetchActiveModel())
 
 const vers = ref([
-  { id: 'v1.4', ver: 'v1.4 — FastAPI 后端接口',             time: '2026-07-20  03:45', dataset: 'PlantDoc', weights: 'runs/train/plantdoc_yolov8n/weights/best.pt', weight_path: 'runs/train/plantdoc_yolov8n/weights/best.pt',
+  { id: 'v1.6', ver: 'v1.6 — AI 智能诊断助手 + 全局异常处理', time: '2026-07-22  17:45', dataset: 'PlantDoc', weights: 'runs/train/plantdoc_yolov8n/weights/best.pt', weight_path: 'runs/train/plantdoc_yolov8n/weights/best.pt',
     weightsFileName: 'best.pt',   map50: '0.632', active: true  },
+  { id: 'v1.5', ver: 'v1.5 — Vue3全栈前端重构 + 后端API扩展', time: '2026-07-21  22:00', dataset: 'PlantDoc', weights: 'runs/train/plantdoc_yolov8n/weights/best.pt', weight_path: 'runs/train/plantdoc_yolov8n/weights/best.pt',
+    weightsFileName: 'best.pt',   map50: '0.632', active: false },
+  { id: 'v1.4', ver: 'v1.4 — FastAPI 后端接口',             time: '2026-07-20  03:45', dataset: 'PlantDoc', weights: 'runs/train/plantdoc_yolov8n/weights/best.pt', weight_path: 'runs/train/plantdoc_yolov8n/weights/best.pt',
+    weightsFileName: 'best.pt',   map50: '0.632', active: false },
   { id: 'v1.3', ver: 'v1.3 — 推理模块与可视化',             time: '2026-07-20  03:00', dataset: 'PlantDoc', weights: 'runs/train/plantdoc_yolov8n/weights/epoch60.pt', weight_path: 'runs/train/plantdoc_yolov8n/weights/epoch60.pt',
     weightsFileName: 'epoch60.pt', map50: '0.587', active: false },
   { id: 'v1.2', ver: 'v1.2 — YOLOv8n 模型训练完成',         time: '2026-07-20  02:30', dataset: 'PlantDoc', weights: 'runs/train/plantdoc_yolov8n/weights/epoch80.pt', weight_path: 'runs/train/plantdoc_yolov8n/weights/epoch80.pt',
@@ -118,14 +132,10 @@ async function roll(v) {
   try {
     const { data } = await api.post('/model/rollback', { weight_path: v.weight_path })
     if (data.success) {
-      setTimeout(() => {
-        vers.value.forEach(x => x.active = false)
-        const t = vers.value.find(x => x.id === v.id)
-        if (t) t.active = true
-        localStorage.setItem('activeModel', data.active_model)
-        overlay.value = false
-        confirmId.value = null
-      }, 1500)
+      overlay.value = false
+      confirmId.value = null
+      localStorage.setItem('activeModel', data.active_model)
+      await fetchActiveModel()
     }
   } catch (e) {
     overlayError.value = e.response?.data?.detail || e.message || '回滚请求失败'

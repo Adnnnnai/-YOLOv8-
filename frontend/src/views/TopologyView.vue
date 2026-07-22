@@ -30,7 +30,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           <h3>平台简介</h3>
         </div>
-        <p>面向智慧农业的作物叶片病害自动检测平台，支持 <span class="hl">29 类</span> 常见病害的智能识别。上传叶片照片即可实时输出病害类型、置信度与精确位置，辅助快速诊断决策。</p>
+        <p class="intro-text">面向智慧农业的作物叶片病害自动检测平台，基于 <span class="hl">YOLOv8</span> 深度学习模型，覆盖 <span class="hl">29 类</span> 常见病害。上传叶片照片即可实时输出病害类型、置信度与精确位置，并集成 <span class="hl">千问多模态大模型</span> 提供 AI 智能诊断与防治建议。</p>
       </div>
 
       <div class="info-card">
@@ -77,17 +77,18 @@ const kpis = computed(() => [
 ])
 
 const coreAbilities = [
-  '覆盖<span class="hl">苹果、番茄、玉米、葡萄</span>等主要农作物的 <span class="hl">29 类病害识别</span>',
-  '单图<span class="hl">毫秒级</span>响应，支持<span class="hl">批量并行检测</span>',
-  '检测结果<span class="hl">可视化标注</span>，边界框与类别标签叠加显示',
-  '完整保留<span class="hl">训练曲线与权重版本</span>，支持<span class="hl">一键回滚</span>',
+  '覆盖<span class="hl">苹果、番茄、玉米、葡萄</span>等主要农作物的 <span class="hl">29 类病害识别</span>，mAP@0.5 达 0.632',
+  '单图<span class="hl">毫秒级</span>响应，支持<span class="hl">批量并行检测</span>，最多 20 张同时推理',
+  '检测结果<span class="hl">可视化标注</span>，边界框与类别标签叠加显示，支持导出 CSV / PDF 报告',
+  '集成<span class="hl">千问多模态 AI 诊断</span>，看图分析病害严重程度并给出防治方案',
+  '完整保留<span class="hl">训练曲线与权重版本</span>，支持<span class="hl">运行时一键回滚</span>，服务不中断',
 ]
 
 const steps = [
-  '在<span class="hl">配置中心</span>检查推理参数',
+  '在<span class="hl">配置中心</span>检查并调整推理参数',
   '进入<span class="hl">推理检测</span>上传叶片图片',
-  '查看检测结果与可视化标注',
-  '按需导出 CSV 检测报告',
+  '查看检测结果、可视化标注与<span class="hl">AI 智能诊断建议</span>',
+  '按需<span class="hl">导出 CSV / PDF</span> 检测报告',
 ]
 </script>
 
@@ -254,6 +255,13 @@ const steps = [
   font-size: 14px;
   color: var(--c-txt2);
   line-height: 1.9;
+}
+.info-card .intro-text {
+  font-size: 15px;
+  line-height: 2.0;
+  color: var(--c-txt2);
+  letter-spacing: 0.01em;
+  font-weight: 500;
 }
 
 .info-list {

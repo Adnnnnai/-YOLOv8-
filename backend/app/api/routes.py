@@ -290,3 +290,19 @@ async def ws_train(websocket: WebSocket):
         pass
     except Exception:
         pass
+
+
+# ============================================================
+#  智能诊断 WebSocket
+# ============================================================
+
+@router.websocket("/ws/chat")
+async def ws_chat(websocket: WebSocket):
+    from backend.app.services.chat import ChatService
+    await websocket.accept()
+    try:
+        await ChatService().handle(websocket)
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
