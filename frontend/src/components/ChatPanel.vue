@@ -1,5 +1,6 @@
 <template>
-  <div class="chat-panel" :class="{ 'chat-panel--open': open }">
+  <div class="chat-panel" :class="{ 'chat-panel--open': open }" :style="{ width: panelW + 'px' }">
+    <div class="chat-resize" @mousedown="onResizeStart"></div>
     <div class="chat-header">
       <div class="chat-header-left">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -62,6 +63,11 @@
     </div>
 
     <div class="chat-foot">
+      <div class="chat-quick" v-if="wsReady">
+        <button class="quick-tag" v-for="t in quickTags" :key="t" :disabled="streaming" @click="sendQuick(t)">
+          {{ t }}
+        </button>
+      </div>
       <div class="chat-err" v-if="error">{{ error }}</div>
       <div class="chat-input-row">
         <input
@@ -80,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, onBeforeUnmount, onMounted } from 'vue'
 
 const props = defineProps({
   open: Boolean,
@@ -91,6 +97,33 @@ const props = defineProps({
 defineEmits(['close'])
 
 const colors = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#f97316']
+
+const panelW = ref(380)
+const MIN_W = 320
+const MAX_W = 700
+
+let dragging = false
+
+function onResizeStart(e) {
+  dragging = true
+  const startX = e.clientX
+  const startW = panelW.value
+
+  const onMove = (ev) => {
+    panelW.value = Math.min(MAX_W, Math.max(MIN_W, startW + (startX - ev.clientX)))
+  }
+  const onUp = () => {
+    dragging = false
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+  document.body.style.cursor = 'ew-resize'
+  document.body.style.userSelect = 'none'
+}
 
 const classMap = {
   'Apple Scab Leaf': '苹果疮痂病叶',
@@ -195,6 +228,17 @@ function send() {
   ws.send(JSON.stringify({ action: 'ask', question: text }))
 }
 
+const quickTags = ['怎么防治？', '严重程度判断', '有机防治方案', '会传染吗？']
+
+function sendQuick(text) {
+  if (streaming.value || !wsReady.value) return
+  messages.value.push({ role: 'user', content: text })
+  error.value = ''
+  streaming.value = true
+  streamText.value = ''
+  ws.send(JSON.stringify({ action: 'ask', question: text }))
+}
+
 function renderMd(text) {
   if (!text) return ''
   return text
@@ -264,6 +308,16 @@ onBeforeUnmount(() => {
   transition: transform .35s var(--ease-out);
 }
 .chat-panel--open { transform: translateX(0); }
+
+.chat-resize {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 5px;
+  cursor: ew-resize;
+  z-index: 1;
+  transition: background .2s;
+}
+.chat-resize:hover { background: rgba(139,92,246,.25); }
 
 .chat-header {
   display: flex;
@@ -434,6 +488,30 @@ onBeforeUnmount(() => {
 
 /* footer */
 .chat-foot { padding: 12px 16px 16px; border-top: 1px solid var(--c-border); flex-shrink: 0; }
+.chat-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.quick-tag {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,.03);
+  color: var(--c-txt2);
+  font-size: 11px;
+  font-family: var(--c-sans);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.quick-tag:hover:not(:disabled) {
+  border-color: rgba(139,92,246,.30);
+  background: rgba(139,92,246,.08);
+  color: var(--c-purple);
+}
+.quick-tag:disabled { opacity: .35; cursor: not-allowed; }
 .chat-err {
   font-size: 12px;
   color: var(--c-red);

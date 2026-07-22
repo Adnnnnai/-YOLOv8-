@@ -90,6 +90,7 @@
         <div style="display:flex;gap:8px">
           <button class="btn btn-ghost btn-sm" @click="exportBatchCSV">导出全部 CSV</button>
           <button class="btn btn-ghost btn-sm" @click="exportBatchPDF">导出 PDF</button>
+          <button class="btn-chat-batch" v-if="hasBatchDetections" @click="openBatchSummary">汇总分析</button>
           <button class="btn btn-ghost btn-sm" @click="clear" style="color:var(--c-red)">关闭</button>
         </div>
       </div>
@@ -157,7 +158,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import ChatPanel from '../components/ChatPanel.vue'
@@ -203,6 +204,20 @@ function openBatchChat(idx) {
     const full = batchCanvases.value[idx].toDataURL('image/jpeg', 0.6)
     chatImageB64.value = full.split(',')[1] || full
   }
+  showChat.value = true
+}
+
+const hasBatchDetections = computed(() => batchItems.value.some(item => item.detections.length > 0))
+
+function openBatchSummary() {
+  chatImageB64.value = ''
+  const all = []
+  batchItems.value.forEach(item => {
+    if (item.detections.length) {
+      item.detections.forEach(d => all.push(d))
+    }
+  })
+  chatDetections.value = all
   showChat.value = true
 }
 
