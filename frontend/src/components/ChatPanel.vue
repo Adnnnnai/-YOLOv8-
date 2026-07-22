@@ -251,14 +251,22 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .chat-panel {
-  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
   border-radius: var(--r-md);
   overflow: hidden;
-  min-width: 0;
+  z-index: 0;
+  transition: opacity .3s var(--ease-out), z-index .3s;
+}
+.chat-panel--open {
+  pointer-events: auto;
+  opacity: 1;
+  z-index: 1;
 }
 
 .chat-header {
