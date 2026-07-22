@@ -113,6 +113,7 @@
                 <span class="batch-det-name">{{ cnName(d.class_name) }}</span>
                 <span class="batch-det-conf">{{ (d.confidence * 100).toFixed(1) }}%</span>
               </div>
+              <button class="btn-chat-inline" @click="openBatchChat(i)">AI 诊断</button>
             </div>
           </div>
         </div>
@@ -148,7 +149,7 @@
       </div>
     </transition>
 
-    <ChatPanel :open="showChat" :detections="dets" :image-base64="chatImageB64" @close="showChat = false" />
+    <ChatPanel :open="showChat" :detections="chatDetections" :image-base64="chatImageB64" @close="showChat = false" />
   </div>
 </template>
 
@@ -178,11 +179,25 @@ const previewResultRef = ref(null)
 
 const showChat = ref(false)
 const chatImageB64 = ref('')
+const chatDetections = ref([])
 
 function openChat() {
   chatImageB64.value = ''
+  chatDetections.value = dets.value
   if (resultCanvasRef.value) {
     const full = resultCanvasRef.value.toDataURL('image/jpeg', 0.6)
+    chatImageB64.value = full.split(',')[1] || full
+  }
+  showChat.value = true
+}
+
+function openBatchChat(idx) {
+  const item = batchItems.value[idx]
+  if (!item) return
+  chatDetections.value = item.detections || []
+  chatImageB64.value = ''
+  if (batchCanvases.value[idx]) {
+    const full = batchCanvases.value[idx].toDataURL('image/jpeg', 0.6)
     chatImageB64.value = full.split(',')[1] || full
   }
   showChat.value = true
@@ -650,6 +665,27 @@ async function exportBatchPDF() {
 .btn-chat-hero:hover::before { opacity: 1; }
 .btn-chat-hero:hover::after { opacity: 1; animation: none; }
 .btn-chat-hero:active { transform: translateY(0); }
+.btn-chat-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px 12px;
+  border: 1px solid rgba(139,92,246,.20);
+  border-radius: 14px;
+  background: rgba(139,92,246,.06);
+  color: #a78bfa;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--c-sans);
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-chat-inline:hover {
+  background: rgba(139,92,246,.14);
+  border-color: rgba(139,92,246,.35);
+  color: #c4b5fd;
+}
 .panel-action {
   border: none; background: transparent; color: var(--c-red);
   font-size: 12px; font-weight: 500; cursor: pointer;
