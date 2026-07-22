@@ -32,6 +32,23 @@ SYSTEM_PROMPT = (
 )
 
 
+def _build_system_prompt(detections: list[dict]) -> str:
+    """构建带 RAG 知识库上下文的 system prompt。"""
+    try:
+        from backend.app.services.knowledge import KnowledgeService
+        ctx = KnowledgeService().format_context(detections)
+        if ctx:
+            return (
+                SYSTEM_PROMPT
+                + "\n\n以下是检测到的病害的专业防治知识库，请基于这些权威信息并结合图片给出诊断建议，"
+                "不要凭空编造农药名称和用量：\n\n"
+                + ctx
+            )
+    except Exception:
+        logger.exception("Failed to load knowledge context")
+    return SYSTEM_PROMPT
+
+
 def _build_detection_text(detections: list[dict]) -> str:
     """将检测列表格式化为文本摘要。"""
     if not detections:
@@ -90,11 +107,13 @@ class ChatService:
 
                 messages.append({"role": "user", "content": user_content})
 
+                system_msg = _build_system_prompt(detection_context)
+
                 payload = {
                     "model": "qwen3-omni-flash",
                     "stream": True,
                     "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "system", "content": system_msg},
                     ] + messages,
                 }
 
