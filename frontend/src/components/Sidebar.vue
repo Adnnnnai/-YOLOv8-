@@ -32,7 +32,7 @@
         <span class="foot-dot"></span>
         <span class="foot-text">系统就绪</span>
       </div>
-      <span class="foot-ver">v1.5</span>
+      <span class="foot-ver">v1.6</span>
     </div>
   </aside>
 </template>
