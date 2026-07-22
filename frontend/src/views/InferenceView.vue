@@ -113,9 +113,12 @@
                 <span class="batch-det-name">{{ cnName(d.class_name) }}</span>
                 <span class="batch-det-conf">{{ (d.confidence * 100).toFixed(1) }}%</span>
               </div>
-              <button class="btn-chat-inline" @click="openBatchChat(i)">AI 诊断</button>
             </div>
           </div>
+          <button class="btn-chat-batch" v-if="item.detections.length" @click="openBatchChat(i)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8V2z"/><circle cx="12" cy="12" r="3"/></svg>
+            AI 诊断
+          </button>
         </div>
       </div>
     </div>
@@ -665,27 +668,33 @@ async function exportBatchPDF() {
 .btn-chat-hero:hover::before { opacity: 1; }
 .btn-chat-hero:hover::after { opacity: 1; animation: none; }
 .btn-chat-hero:active { transform: translateY(0); }
-.btn-chat-inline {
+.btn-chat-batch {
+  flex-shrink: 0;
+  align-self: center;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 6px;
-  padding: 4px 12px;
-  border: 1px solid rgba(139,92,246,.20);
-  border-radius: 14px;
-  background: rgba(139,92,246,.06);
+  gap: 6px;
+  padding: 8px 16px;
+  margin-left: 12px;
+  border: 1px solid rgba(139,92,246,.25);
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, rgba(139,92,246,.10) 0%, rgba(139,92,246,.03) 100%);
   color: #a78bfa;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   font-family: var(--c-sans);
   cursor: pointer;
-  transition: all .2s;
+  transition: all .25s var(--ease-out);
+  white-space: nowrap;
 }
-.btn-chat-inline:hover {
-  background: rgba(139,92,246,.14);
-  border-color: rgba(139,92,246,.35);
+.btn-chat-batch:hover {
+  border-color: rgba(139,92,246,.50);
   color: #c4b5fd;
+  background: linear-gradient(135deg, rgba(139,92,246,.18) 0%, rgba(139,92,246,.06) 100%);
+  box-shadow: 0 0 20px rgba(139,92,246,.14), 0 2px 10px rgba(139,92,246,.06);
+  transform: translateY(-1px);
 }
+.btn-chat-batch:active { transform: translateY(0); }
 .panel-action {
   border: none; background: transparent; color: var(--c-red);
   font-size: 12px; font-weight: 500; cursor: pointer;
