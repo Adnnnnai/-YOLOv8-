@@ -7,13 +7,17 @@
 
 import json
 import logging
+import os
 
 import httpx
 
 logger = logging.getLogger("agrivision.chat")
 
 DASHSCOPE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-API_KEY = "sk-ws-H.EHEDIYP.7KWA.MEQCIApZLvBpaL390sB8BCCJYOMmEl-2ww5h59Qn5q06h-hYAiBnN1fWF-oZ61ZNcke-h-ojmTwXrY6V2WccMWZAbIoi5A"
+API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+
+if not API_KEY:
+    logger.warning("DASHSCOPE_API_KEY 未设置，AI 诊断功能将不可用")
 
 SYSTEM_PROMPT = (
     "你是农业植保专家，服务于智慧农业病害检测平台 AgriVision。"
