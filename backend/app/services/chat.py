@@ -142,7 +142,7 @@ class ChatService:
 
                 except httpx.RequestError as e:
                     logger.exception("DashScope request failed")
-                    await websocket.send_json({"type": "error", "message": f"模型请求失败: {str(e)}"})
+                    await websocket.send_json({"type": "error", "message": "模型请求失败，请稍后重试"})
                     continue
 
                 messages.append({"role": "assistant", "content": full})
